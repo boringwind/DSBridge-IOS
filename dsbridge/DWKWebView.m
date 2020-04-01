@@ -160,7 +160,7 @@ completionHandler:(void (^)(void))completionHandler
 #if TARGET_OS_MAC
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:message];
-        [alert addButtonWithTitle:dialogTextDic[@"alertBtn"]?dialogTextDic[@"alertBtn"]:@"Done";
+        [alert addButtonWithTitle:dialogTextDic[@"alertBtn"]?dialogTextDic[@"alertBtn"]:@"Done"];
         [alert beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSModalResponse returnCode) {
             completionHandler();
         }];
