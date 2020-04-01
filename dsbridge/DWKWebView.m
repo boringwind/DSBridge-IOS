@@ -254,6 +254,24 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
 
 #endif
 
+#if !TARGET_OS_IPHONE
+
+- (void)webView:(WKWebView *)webView
+runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters
+initiatedByFrame:(WKFrameInfo *)frame
+completionHandler:(void (^)(NSArray<NSURL *> * _Nullable URLs))completionHandler API_AVAILABLE(macos(10.12)) {
+    if( self.DSUIDelegate&& [self.DSUIDelegate respondsToSelector:
+                            @selector(webView:runOpenPanelWithParameters:initiatedByFrame:completionHandler:)])
+    {
+        return[self.DSUIDelegate webView:webView
+              runOpenPanelWithParameters:parameters
+                        initiatedByFrame:frame
+                       completionHandler:completionHandler];
+    }
+}
+
+#endif
+
 #if TARGET_OS_IOS
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
