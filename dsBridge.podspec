@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "dsBridge"
-  s.version      = "3.0.6"
+  s.version      = "3.0.7"
   s.summary      = "An ios bridge for calling functions synchronously and asynchronously between JavaScript and Object-C in WKWebView/UIWebView"
 
   # This description is used to generate tags and improve search results.
@@ -71,7 +71,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.11'
 
   #  When using multiple platforms
-  s.ios.deployment_target = "8.0"
+  # s.ios.deployment_target = "8.0"
   # s.osx.deployment_target = "10.7"
   # s.watchos.deployment_target = "2.0"
   # s.tvos.deployment_target = "9.0"
