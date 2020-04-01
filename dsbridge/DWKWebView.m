@@ -6,33 +6,38 @@
 
 @implementation DWKWebView
 {
-    void (^alertHandler)(void);
-    void (^confirmHandler)(BOOL);
-    void (^promptHandler)(NSString *);
     void(^javascriptCloseWindowListener)(void);
-    int dialogType;
     int callId;
     bool jsDialogBlock;
     NSMutableDictionary<NSString *,id> *javaScriptNamespaceInterfaces;
     NSMutableDictionary *handerMap;
     NSMutableArray<DSCallInfo *> * callInfoList;
     NSDictionary<NSString*,NSString*> *dialogTextDic;
-    UITextField *txtName;
     UInt64 lastCallTime ;
     NSString *jsCache;
     bool isPending;
     bool isDebug;
+
+#if TARGET_OS_IOS
+    void (^alertHandler)(void);
+    void (^confirmHandler)(BOOL);
+    void (^promptHandler)(NSString *);
+    int dialogType;
+    UITextField *txtName;
+#endif
 }
 
 
 -(instancetype)initWithFrame:(CGRect)frame configuration:(WKWebViewConfiguration *)configuration
 {
-    txtName=nil;
-    dialogType=0;
-    callId=0;
+#if TARGET_OS_IOS
     alertHandler=nil;
     confirmHandler=nil;
     promptHandler=nil;
+    dialogType=0;
+    txtName=nil;
+#endif
+    callId=0;
     jsDialogBlock=true;
     callInfoList=[NSMutableArray array];
     javaScriptNamespaceInterfaces=[NSMutableDictionary dictionary];
@@ -42,7 +47,7 @@
     isPending=false;
     isDebug=false;
     dialogTextDic=@{};
-    
+
     WKUserScript *script = [[WKUserScript alloc] initWithSource:@"window._dswk=true;"
                                                   injectionTime:WKUserScriptInjectionTimeAtDocumentStart
                                                forMainFrameOnly:YES];
@@ -77,7 +82,7 @@ completionHandler:(void (^)(NSString * _Nullable result))completionHandler
             }
         }
         completionHandler(result);
-        
+
     }else {
         if(!jsDialogBlock){
             completionHandler(nil);
@@ -92,6 +97,7 @@ completionHandler:(void (^)(NSString * _Nullable result))completionHandler
                              initiatedByFrame:frame
                             completionHandler:completionHandler];
         }else{
+#if TARGET_OS_IOS
             dialogType=3;
             if(jsDialogBlock){
                 promptHandler=completionHandler;
@@ -100,13 +106,24 @@ completionHandler:(void (^)(NSString * _Nullable result))completionHandler
                                   initWithTitle:prompt
                                   message:@""
                                   delegate:self
-                                  cancelButtonTitle:dialogTextDic[@"promptCancelBtn"]?dialogTextDic[@"promptCancelBtn"]:@"取消"
-                                  otherButtonTitles:dialogTextDic[@"promptOkBtn"]?dialogTextDic[@"promptOkBtn"]:@"确定",
+                                  cancelButtonTitle:dialogTextDic[@"promptCancelBtn"]?dialogTextDic[@"promptCancelBtn"]:@"Cancel"
+                                  otherButtonTitles:dialogTextDic[@"promptOkBtn"]?dialogTextDic[@"promptOkBtn"]:@"Done",
                                   nil];
             [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
             txtName = [alert textFieldAtIndex:0];
             txtName.text=defaultText;
             [alert show];
+#endif
+
+#if TARGET_OS_MAC
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:prompt];
+        [alert addButtonWithTitle:dialogTextDic[@"promptCancelBtn"]?dialogTextDic[@"promptCancelBtn"]:@"Cancel"];
+        [alert addButtonWithTitle:dialogTextDic[@"promptOkBtn"]?dialogTextDic[@"promptOkBtn"]:@"Done"];
+        [alert beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSModalResponse returnCode) {
+            completionHandler(defaultText);
+        }];
+#endif
         }
     }
 }
@@ -126,17 +143,28 @@ completionHandler:(void (^)(void))completionHandler
                          initiatedByFrame:frame
                         completionHandler:completionHandler];
     }else{
+#if TARGET_OS_IOS
         dialogType=1;
         if(jsDialogBlock){
             alertHandler=completionHandler;
         }
         UIAlertView *alertView =
-        [[UIAlertView alloc] initWithTitle:dialogTextDic[@"alertTitle"]?dialogTextDic[@"alertTitle"]:@"提示"
+        [[UIAlertView alloc] initWithTitle:dialogTextDic[@"alertTitle"]?dialogTextDic[@"alertTitle"]:@"Prompt"
                                    message:message
                                   delegate:self
-                         cancelButtonTitle:dialogTextDic[@"alertBtn"]?dialogTextDic[@"alertBtn"]:@"确定"
+                         cancelButtonTitle:dialogTextDic[@"alertBtn"]?dialogTextDic[@"alertBtn"]:@"Done"
                          otherButtonTitles:nil,nil];
         [alertView show];
+#endif
+
+#if TARGET_OS_MAC
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:message];
+        [alert addButtonWithTitle:dialogTextDic[@"alertBtn"]?dialogTextDic[@"alertBtn"]:@"Done";
+        [alert beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSModalResponse returnCode) {
+            completionHandler();
+        }];
+#endif
     }
 }
 
@@ -153,17 +181,29 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
                         initiatedByFrame:frame
                        completionHandler:completionHandler];
     }else{
+#if TARGET_OS_IOS
         dialogType=2;
         if(jsDialogBlock){
             confirmHandler=completionHandler;
         }
         UIAlertView *alertView =
-        [[UIAlertView alloc] initWithTitle:dialogTextDic[@"confirmTitle"]?dialogTextDic[@"confirmTitle"]:@"提示"
+        [[UIAlertView alloc] initWithTitle:dialogTextDic[@"confirmTitle"]?dialogTextDic[@"confirmTitle"]:@"Prompt"
                                    message:message
                                   delegate:self
-                         cancelButtonTitle:dialogTextDic[@"confirmCancelBtn"]?dialogTextDic[@"confirmCancelBtn"]:@"取消"
-                         otherButtonTitles:dialogTextDic[@"confirmOkBtn"]?dialogTextDic[@"confirmOkBtn"]:@"确定", nil];
+                         cancelButtonTitle:dialogTextDic[@"confirmCancelBtn"]?dialogTextDic[@"confirmCancelBtn"]:@"Cancel"
+                         otherButtonTitles:dialogTextDic[@"confirmOkBtn"]?dialogTextDic[@"confirmOkBtn"]:@"Done", nil];
         [alertView show];
+#endif
+
+#if TARGET_OS_MAC
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:message];
+        [alert addButtonWithTitle:dialogTextDic[@"confirmCancelBtn"]?dialogTextDic[@"confirmCancelBtn"]:@"Cancel"];
+        [alert addButtonWithTitle:dialogTextDic[@"confirmOkBtn"]?dialogTextDic[@"confirmOkBtn"]:@"Done"];
+        [alert beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSModalResponse returnCode) {
+            completionHandler(returnCode == NSAlertSecondButtonReturn);
+        }];
+#endif
     }
 }
 
@@ -182,6 +222,7 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
     }
 }
 
+#if TARGET_OS_IPHONE
 - (BOOL)webView:(WKWebView *)webView shouldPreviewElement:(WKPreviewElementInfo *)elementInfo{
     if( self.DSUIDelegate
        && [self.DSUIDelegate respondsToSelector:
@@ -211,6 +252,9 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
     }
 }
 
+#endif
+
+#if TARGET_OS_IOS
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     if(dialogType==1 && alertHandler){
@@ -229,6 +273,7 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
         txtName=nil;
     }
 }
+#endif
 
 - (void) evalJavascript:(int) delay{
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
@@ -276,7 +321,7 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
                         }
                         value=[JSBUtil objToJsonString:result];
                         value=[value stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
-                        
+
                         if(complete){
                             del=[@"delete window." stringByAppendingString:cb];
                         }
@@ -295,9 +340,9 @@ initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completi
                                 [strongSelf evalJavascript:0];
                             }
                         }
-                        
+
                     };
-                    
+
                     void(*action)(id,SEL,id,id) = (void(*)(id,SEL,id,id))objc_msgSend;
                     action(JavascriptInterfaceObject,selasyn,arg,completionHandler);
                     break;
