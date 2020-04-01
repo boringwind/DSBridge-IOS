@@ -242,7 +242,7 @@
 					};
 					818F0B9D1E18C0AA00679925 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = XTLLEQZMD7;
+						DevelopmentTeam = 75TY9UT8AY;
 						LastSwiftMigration = 0940;
 						ProvisioningStyle = Automatic;
 					};
@@ -253,6 +253,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -459,7 +460,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = XTLLEQZMD7;
+				DEVELOPMENT_TEAM = 75TY9UT8AY;
 				INFOPLIST_FILE = dsbridgedemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = wendu.dsbridgedemo.xx;
@@ -477,7 +478,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = XTLLEQZMD7;
+				DEVELOPMENT_TEAM = 75TY9UT8AY;
 				INFOPLIST_FILE = dsbridgedemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = wendu.dsbridgedemo.xx;
